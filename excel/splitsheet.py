@@ -44,7 +44,6 @@ def split(excel_file, dir):
 def main():
     parser = create_parser()
     args = parser.parse_args()
-    #print(args)
 
     if not os.path.isfile(args.excel_file):
         print("ERROR: File does not exist.")
@@ -57,7 +56,6 @@ def main():
     
     if dir == "":
         dir = "./"
-    #print (args.excel_file + " : " + dir)
     
     try:
         os.makedirs(dir, exist_ok=True)
