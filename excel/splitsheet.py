@@ -60,7 +60,6 @@ def main():
     try:
         os.makedirs(dir, exist_ok=True)
     except FileExistsError as e:
-        #print(e.strerror, e.errno, e.filename)
         print("ERROR: dest_dir is " + e.filename)
         sys.exit(1)
     
