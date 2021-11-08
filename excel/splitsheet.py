@@ -1,0 +1,73 @@
+import os
+import sys
+import argparse
+import openpyxl
+import copy
+
+def create_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'excel_file',
+        type=str,
+        help='This is Excel file.',
+    )
+    parser.add_argument(
+        "dest_dir",
+        type=str,
+        nargs="?",
+        default=None,
+        help="This is destination dir.")
+
+    return parser
+
+def split(excel_file, dir):
+    try:
+        book = openpyxl.load_workbook(excel_file)
+        for sheet in book:
+            file_name = dir + "/" + sheet.title + ".xlsx"
+            print(file_name)
+            new_book = copy.deepcopy(book)
+            for new_sheet in new_book:
+                if new_sheet.title == sheet.title:
+                    continue
+                else:
+                    new_book.remove(new_sheet)
+            new_book.save(file_name)
+        book.close()
+        print("COMPLETE!")
+    except:
+        print("ERROR:")
+        print(sys.exc_info()[1])
+        sys.exit(1)
+
+
+def main():
+    parser = create_parser()
+    args = parser.parse_args()
+    #print(args)
+
+    if not os.path.isfile(args.excel_file):
+        print("ERROR: File does not exist.")
+        sys.exit(1)
+    
+    if args.dest_dir is None:
+        dir = os.path.dirname(args.excel_file)
+    else:
+        dir = args.dest_dir
+    
+    if dir == "":
+        dir = "./"
+    #print (args.excel_file + " : " + dir)
+    
+    try:
+        os.makedirs(dir, exist_ok=True)
+    except FileExistsError as e:
+        #print(e.strerror, e.errno, e.filename)
+        print("ERROR: dest_dir is " + e.filename)
+        sys.exit(1)
+    
+    split(args.excel_file, dir)
+
+
+if __name__ == '__main__':
+    main()
