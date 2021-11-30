@@ -7,24 +7,25 @@ import copy
 def create_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'excel_file',
+        "excel_file",
         type=str,
-        help='This is Excel file.',
+        help="This is a Excel file. (Supported formats are: .xlsx,.xlsm,.xltx,.xltm. And wildcards cannot be used. )"
     )
     parser.add_argument(
         "dest_dir",
         type=str,
         nargs="?",
         default=None,
-        help="This is destination dir.")
-
+        help="This is a destination dir."
+    )
     return parser
 
-def split(excel_file, dir):
+def split(excel_file, dest_dir):
     try:
         book = openpyxl.load_workbook(excel_file)
+        print("EXCEL FILE: " + excel_file)
         for sheet in book:
-            file_name = dir + "/" + sheet.title + ".xlsx"
+            file_name = dest_dir + "/" + sheet.title + ".xlsx"
             print(file_name)
             new_book = copy.deepcopy(book)
             for new_sheet in new_book:
@@ -46,24 +47,21 @@ def main():
     args = parser.parse_args()
 
     if not os.path.isfile(args.excel_file):
-        print("ERROR: File does not exist.")
+        print("ERROR: Excel file does not exist.")
         sys.exit(1)
     
     if args.dest_dir is None:
-        dir = os.path.dirname(args.excel_file)
+        dest_dir = "."
     else:
-        dir = args.dest_dir
-    
-    if dir == "":
-        dir = "./"
+        dest_dir = args.dest_dir
     
     try:
-        os.makedirs(dir, exist_ok=True)
+        os.makedirs(dest_dir, exist_ok=True)
     except FileExistsError as e:
         print("ERROR: dest_dir is " + e.filename)
         sys.exit(1)
     
-    split(args.excel_file, dir)
+    split(args.excel_file, dest_dir)
 
 
 if __name__ == '__main__':
