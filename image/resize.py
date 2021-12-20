@@ -125,7 +125,7 @@ def resize(f, arg_size, dest_dir, resample, thumbnail, verbose):
         print("Error: ", f)
         pass
 
-def adapt_size(size_opt, img):
+def adapt_size(size_opt, img) -> tuple[Decimal, Decimal]:
     x_pos = size_opt.find("x")
     width_str = size_opt[:x_pos]
     height_str= size_opt[x_pos + 1:]
@@ -144,41 +144,40 @@ def adapt_size(size_opt, img):
 
     return w_temp, h_temp
 
-def ref_width(w_spec, img):
+def ref_width(w_spec, img) -> tuple[Decimal, Decimal]:
     try:
         height = round_halfup(img.height * w_spec / img.width)
         return w_spec, height
     except:
         sys.exit(1)
 
-def ref_height(h_spec, img):
+def ref_height(h_spec, img) -> tuple[Decimal, Decimal]:
     try:
         width = round_halfup(img.width * h_spec / img.height)
         return width, h_spec
     except:
         sys.exit(1)
 
-def get_size(size_str, source_size):
+def get_size(size_str, source_size) -> Decimal:
     if size_str == "": return
-    p = '\d|.'
     scale = percent(size_str)
     try:
         if scale is None:
             return Decimal("".join(filter(str.isdigit, size_str)))
         else:
-            ratio = Decimal("".join(filter(lambda s:re.fullmatch(p, s), scale)))
+            ratio = Decimal("".join(filter(lambda s:re.sub(r"[^\d.]", "", s), scale)))
             return round_halfup(source_size * ratio / 100)
     except:
         sys.exit(1)
 
-def percent(s):
+def percent(s) -> str:
     unit_pos = s.find("%")
     if unit_pos == -1:
         return None
     else:
         return s[:unit_pos]
 
-def round_halfup(decimal_value):
+def round_halfup(decimal_value) -> Decimal:
     return decimal_value.quantize(Decimal('0'), rounding=ROUND_HALF_UP)
 
 
