@@ -21,30 +21,35 @@ def create_parser():
         help="This is destination file or dir."
     )
     parser.add_argument(
+        "-t", "--threshold",
+        type=str,
+        default="250",
+        help="The brightness of the pixel is the threshold. Brightness is the average of rgb. Default is 250."
+    )
+    parser.add_argument(
         "-v", "--verbose",
         action="store_true",
         help="Give more output."
     )
     return parser
 
-def select_color(color):
+def select_color(color, threshold):
     mean = np.array(color).mean(axis=0)
-    return (255,255,255,0) if mean >= 250 else color
+    return (255,255,255,0) if mean >= int(threshold) else color
 
-def transparent(img):
+def transparent(img, threshold):
     w, h = img.size
     transparent_img = Image.new('RGBA', (w, h))
-    np.array([[transparent_img.putpixel((x, y), select_color(img.getpixel((x,y)))) for x in range(w)] for y in range(h)])
+    np.array([[transparent_img.putpixel((x, y), select_color(img.getpixel((x,y)), threshold)) for x in range(w)] for y in range(h)])
     return transparent_img
 
-def trans(f, dst_dir, verbose):
+def trans(f, dst_dir, verbose, threshold):
     try:
         original_img = Image.open(f).convert("RGB")
         root, ext = os.path.splitext(f)
         file_name = os.path.basename(root)
-        transparent(original_img).save(os.path.join(dst_dir, file_name + ".png"))
-        if verbose:
-            print("Success Transparent: " + dst_dir + file_name + ".png")
+        transparent(original_img, threshold).save(os.path.join(dst_dir, file_name + ".png"))
+        if verbose: print("Success Transparent: " + dst_dir + file_name + ".png")
     except OSError as e:
         print("Error: " + f.title)
         pass
@@ -62,12 +67,12 @@ def main():
         sys.exit(1)
 
     if os.path.isfile(args.source):
-        trans(args.source, dest_dir, args.verbose)
+        trans(args.source, dest_dir, args.verbose, args.threshold)
     
     elif os.path.isdir(args.source):
         files = glob.glob(args.source + "/*")
         for f in files:
-            trans(f, dest_dir, args.verbose)
+            trans(f, dest_dir, args.verbose, args.threshold)
 
     else:
         print("ERROR: Source file or dir does not exist.")

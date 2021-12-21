@@ -14,7 +14,7 @@ def create_parser():
     parser.add_argument(
         "source",
         type=str,
-        help="This is source. (Specify a file or directory. Wildcards cannot be used.)"
+        help="This is image source. (Specify a file or directory. Wildcards cannot be used.)"
     )
     parser.add_argument(
         "dest_dir",
