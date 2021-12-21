@@ -118,8 +118,9 @@ def main():
     if opt.count(True) == 1:
         fmt , suffix = ("JPEG", ".jpg") if j else ("PNG", ".png") if p else ("TIFF", ".tif") if t or m else ("GIF", ".gif") if g else ("BMP", ".bmp") if b else ("WEBP", ".webp")
         if verbose: print("Image format:", fmt)
+
     else:
-        print("Error: Any one of jpeg, png, tiff, multipage tiff, gif, bmp.")
+        print("Error: Any one of jpeg, png, tiff, multipage tiff, gif, bmp, webp.")
         sys.exit(1)
 
     dest_dir = "." if args.destination is None else args.destination
