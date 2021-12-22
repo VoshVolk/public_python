@@ -131,11 +131,15 @@ def main():
         sys.exit(1)
 
     if os.path.isfile(args.source):
+        root, ext = os.path.splitext(args.source)
+        if ext != ".pdf":
+            print("Error: PDF file does not exist.")
+            sys.exit(1)
         if verbose: print(args.source, end=" > ")
         convert_image(args.source, dest_dir, fmt, suffix, args.dpi, m, verbose)
     
     elif os.path.isdir(args.source):
-        files = glob.glob(args.source + "/*")
+        files = glob.glob(args.source + "/*.pdf")
         for f in files:
             if verbose: print(f, end=" ")
             convert_image(f, dest_dir, fmt, suffix, args.dpi, m, verbose)
