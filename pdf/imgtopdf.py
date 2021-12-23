@@ -25,7 +25,7 @@ def create_parser():
     parser.add_argument(
         "-s", "--split",
         action="store_true",
-        help="Output file is a separate file."
+        help="Output file is a separate file. File name follows image file."
     )
     parser.add_argument(
         "-v", "--verbose",
@@ -40,12 +40,13 @@ def convert_pdf(input, output, source, destination, split, verbose):
 
     if split:
         for file in natsorted(input_list):
-            single_convert_pdf(file, output, destination, verbose)
+            origin_source = os.path.join(source, os.path.basename(file))
+            single_convert_pdf(file, output, origin_source, destination, verbose)
 
     else:
+        if verbose: print(source + "*", end=" > ")
         if output == "":
             output = os.path.join(destination, "new.pdf")
-        if verbose: print(source, end=" > ")
 
         try:
             with open(output, "wb") as f:
@@ -54,11 +55,10 @@ def convert_pdf(input, output, source, destination, split, verbose):
             print(e)
             sys.exit(1)
         
-        if verbose: print(output, "<Success>")
+        if verbose: print(output)
 
-def single_convert_pdf(input, output, destination, verbose):
-    if verbose: print(input, end=" > ")
-
+def single_convert_pdf(input, output, source, destination, verbose):
+    if verbose: print(source, end=" > ")
     if output == "":
         root, ext = os.path.splitext(input)
         file_name = os.path.basename(root)
@@ -71,7 +71,7 @@ def single_convert_pdf(input, output, destination, verbose):
         print(e)
         sys.exit(1)
 
-    if verbose: print(output, "<Success>")
+    if verbose: print(output)
 
 def alphachannel_erase(filename):
     try:
@@ -116,6 +116,7 @@ def main():
         else:
             makedir(destination)
 
+    if verbose: print("**** Start ****")
     if os.path.isfile(source):
         root, ext = os.path.splitext(source)
         file_name = os.path.basename(root)
@@ -126,13 +127,13 @@ def main():
                     shutil.copy(source, dname)
                     input = os.path.join(dname, file_name + ext)
                     alphachannel_erase(input)
-                    single_convert_pdf(input, output, destination, verbose)
+                    single_convert_pdf(input, output, source, destination, verbose)
             except Exception as e:
                 print(e)
                 sys.exit(1)
 
         else:
-            single_convert_pdf(source, output, destination, verbose)
+            single_convert_pdf(source, output, source, destination, verbose)
     
     elif os.path.isdir(source):
         png_files = glob.glob(source + "/*.png")
@@ -155,6 +156,8 @@ def main():
     else:
         print("ERROR: Source does not exist.")
         sys.exit(1)
+
+    if verbose: print("**** Complete! ****")
 
 
 if __name__ == '__main__':
