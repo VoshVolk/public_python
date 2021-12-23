@@ -49,7 +49,7 @@ def trans(f, dst_dir, verbose, threshold):
         root, ext = os.path.splitext(f)
         file_name = os.path.basename(root)
         transparent(original_img, threshold).save(os.path.join(dst_dir, file_name + ".png"))
-        if verbose: print("Success Transparent: " + dst_dir + file_name + ".png")
+        if verbose: print("Success Transparent: " + dst_dir + "/" + file_name + ".png")
     except OSError as e:
         print("Error: " + f.title)
         pass

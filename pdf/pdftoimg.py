@@ -95,7 +95,7 @@ def convert_image(f, dest_dir, fmt, suffix, dpi, multi, verbose):
                 else:
                     page.save(str(image_path), fmt)
         
-        if verbose: print(" <Success>")
+        if verbose: print(" <Success>", dest_dir)
 
     except OSError as e:
         print("Error: " + f.title)

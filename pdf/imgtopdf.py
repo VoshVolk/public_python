@@ -4,6 +4,7 @@ import glob
 import tempfile
 import shutil
 import argparse
+import img2pdf
 from natsort import natsorted
 import cv2
 
@@ -34,34 +35,43 @@ def create_parser():
     return parser
 
 
-def convert_pdf(f, dest_dir, split, verbose):
+def convert_pdf(input, output, source, destination, split, verbose):
+    input_list = glob.glob(input + "/*")
+
     if split:
-
-
-        pass
+        for file in natsorted(input_list):
+            single_convert_pdf(file, output, destination, verbose)
 
     else:
-        #with open()
+        if output == "":
+            output = os.path.join(destination, "new.pdf")
+        if verbose: print(source, end=" > ")
 
-        pass
+        try:
+            with open(output, "wb") as f:
+                f.write(img2pdf.convert([str(i) for i in natsorted(input_list)]))
+        except Exception as e:
+            print(e)
+            sys.exit(1)
+        
+        if verbose: print(output, "<Success>")
 
+def single_convert_pdf(input, output, destination, verbose):
+    if verbose: print(input, end=" > ")
 
+    if output == "":
+        root, ext = os.path.splitext(input)
+        file_name = os.path.basename(root)
+        output = os.path.join(destination, file_name + ".pdf")
+    
+    try:
+        with open(output, "wb") as f:
+            f.write(img2pdf.convert([input]))
+    except Exception as e:
+        print(e)
+        sys.exit(1)
 
-
-
-
-
-
-
-    root, ext = os.path.splitext(f)
-    name = os.path.basename(root)
-
-
-def convert(source_dir, dest_dir, split, verbose):
-    files = glob.glob(source_dir + "/*")
-    for f in files:
-        if verbose: print(f, end=" ")
-        convert_pdf(f, dest_dir, split, verbose)
+    if verbose: print(output, "<Success>")
 
 def alphachannel_erase(filename):
     try:
@@ -69,18 +79,17 @@ def alphachannel_erase(filename):
         if img.shape[2] == 4:
             img2 = cv2.imread(filename,cv2.IMREAD_COLOR)
             cv2.imwrite(filename, img2)
-    except OSError as e:
-        print("Error: " + filename)
+    except Exception as e:
+        print(e)
         sys.exit(1)
 
-def all_file_copy(source_dir, dest_dir):
+def makedir(path):
     try:
-        files = glob.glob(source_dir, "/*")
-        for file in files:
-            shutil.copy(file, dest_dir)
-    except OSError as e:
-        print("Error:" + source_dir)
+        os.makedirs(path, exist_ok=True)
+    except FileExistsError as e:
+        print("ERROR: Destination is " + e.filename)
         sys.exit(1)
+
 
 def main():
     parser = create_parser()
@@ -90,49 +99,58 @@ def main():
     verbose = args.verbose
 
     destination = "." if args.destination is None else args.destination
+    output = ""
+
     if split:
-        pass
+        if destination.endswith(".pdf"):
+            makedir(os.path.dirname(destination))
+            destination = os.path.dirname(destination)
+        else:
+            makedir(destination)
+
     else:
-        pass
-    try:
-        os.makedirs(dest_dir, exist_ok=True)
-    except FileExistsError as e:
-        print("ERROR: Destination is " + e.filename)
-        sys.exit(1)
+        if destination.endswith(".pdf"):
+            makedir(os.path.dirname(destination))
+            output = destination
+            destination = os.path.dirname(destination)
+        else:
+            makedir(destination)
 
     if os.path.isfile(source):
         root, ext = os.path.splitext(source)
         file_name = os.path.basename(root)
 
-        if verbose: print(source, end=" > ")
         if ext == ".png":
             try:
                 with tempfile.TemporaryDirectory() as dname:
-                    print(dname)
                     shutil.copy(source, dname)
-                    file = os.path.join(dname, file_name + ext)
-                    alphachannel_erase(file)
-                    convert_pdf(file, dest_dir, split, verbose)
-
-            except OSError as e:
-                print("Error: " + source)
+                    input = os.path.join(dname, file_name + ext)
+                    alphachannel_erase(input)
+                    single_convert_pdf(input, output, destination, verbose)
+            except Exception as e:
+                print(e)
                 sys.exit(1)
 
         else:
-            convert_pdf(source, dest_dir, split, verbose)
+            single_convert_pdf(source, output, destination, verbose)
     
     elif os.path.isdir(source):
         png_files = glob.glob(source + "/*.png")
+
         if png_files == []:
-            convert(source, dest_dir, split, verbose)
+            convert_pdf(source, output, source, destination, split, verbose)
+
         else:
-            with tempfile.TemporaryDirectory() as dname:
-                print(dname)
-                all_file_copy(source, dname)
-                png_files = glob.glob(dname + "/*.png")
-                for file in png_files:
-                    alphachannel_erase(file)
-                convert(dname, dest_dir, args.split, verbose)
+            try:
+                with tempfile.TemporaryDirectory() as dname:
+                    shutil.copytree(source, dname, dirs_exist_ok=True)
+                    png_files = glob.glob(dname + "/*.png")
+                    for file in png_files:
+                        alphachannel_erase(file)
+                    convert_pdf(dname, output, source, destination, split, verbose)
+            except Exception as e:
+                print(e)
+                sys.exit(1)
 
     else:
         print("ERROR: Source does not exist.")
