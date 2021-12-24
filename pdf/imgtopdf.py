@@ -25,7 +25,7 @@ def create_parser():
     parser.add_argument(
         "-s", "--split",
         action="store_true",
-        help="Output file is a separate file. File name follows image file."
+        help="Output file is a separate file. Pdf filename follows image file."
     )
     parser.add_argument(
         "-v", "--verbose",
@@ -33,7 +33,6 @@ def create_parser():
         help="Give more output."
     )
     return parser
-
 
 def convert_pdf(input, output, source, destination, split, verbose):
     input_list = glob.glob(input + "/*")
@@ -98,9 +97,8 @@ def main():
     split = args.split
     verbose = args.verbose
 
-    destination = "." if args.destination is None else args.destination
     output = ""
-
+    destination = "." if args.destination is None else args.destination
     if split:
         if destination.endswith(".pdf"):
             makedir(os.path.dirname(destination))
