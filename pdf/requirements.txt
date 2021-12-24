@@ -1,5 +1,8 @@
 img2pdf==0.4.3
 lxml==4.7.1
+natsort==8.0.2
+numpy==1.21.5
+opencv-python==4.5.4.60
 pdf2image==1.16.0
 pikepdf==4.2.0
 Pillow==8.4.0
