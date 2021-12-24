@@ -8,6 +8,7 @@ import img2pdf
 from natsort import natsorted
 import cv2
 
+
 def create_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
