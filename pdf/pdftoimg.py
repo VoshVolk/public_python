@@ -82,7 +82,7 @@ def convert_image(f, dest_dir, fmt, suffix, dpi, multi, verbose):
             file_name = name + suffix
             image_path = dest_dir + "/" + file_name
             if verbose: print(end=">")
-            pages[0].save(str(image_path), "TIFF", compression="tiff_deflate", save_all=True, append_images=pages[1:])
+            pages[0].save(str(image_path), "TIFF", compression="tiff_deflate", save_all=True, append_images=pages[1:], dpi = (dpi, dpi))
 
         else:
             for i, page in enumerate(pages):
@@ -90,10 +90,10 @@ def convert_image(f, dest_dir, fmt, suffix, dpi, multi, verbose):
                 image_path = dest_dir + "/" + file_name
                 if verbose: print(end=">")
                 if fmt == "TIFF":
-                    page.save(str(image_path), "TIFF", compression="tiff_deflate")
+                    page.save(str(image_path), "TIFF", compression="tiff_deflate", dpi = (dpi, dpi))
 
                 else:
-                    page.save(str(image_path), fmt)
+                    page.save(str(image_path), fmt, dpi = (dpi, dpi))
         
         if verbose: print(" <Success>", dest_dir)
 
@@ -105,6 +105,7 @@ def convert_image(f, dest_dir, fmt, suffix, dpi, multi, verbose):
 def main():
     parser = create_parser()
     args = parser.parse_args()
+    dpi = int(args.dpi)
     verbose = args.verbose
     j = args.jpeg
     p = args.png
@@ -136,13 +137,13 @@ def main():
             print("Error: PDF file does not exist.")
             sys.exit(1)
         if verbose: print(args.source, end=" > ")
-        convert_image(args.source, dest_dir, fmt, suffix, args.dpi, m, verbose)
+        convert_image(args.source, dest_dir, fmt, suffix, dpi, m, verbose)
     
     elif os.path.isdir(args.source):
         files = glob.glob(args.source + "/*.pdf")
         for f in files:
             if verbose: print(f, end=" ")
-            convert_image(f, dest_dir, fmt, suffix, args.dpi, m, verbose)
+            convert_image(f, dest_dir, fmt, suffix, dpi, m, verbose)
 
     else:
         print("ERROR: Source file or dir does not exist.")
