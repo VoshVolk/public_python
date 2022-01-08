@@ -52,7 +52,8 @@ def convert_pdf(input, output, source, destination, split, verbose):
             with open(output, "wb") as f:
                 f.write(img2pdf.convert([str(i) for i in natsorted(input_list)]))
         except Exception as e:
-            print(e)
+            error_type = type(e).__name__
+            sys.stderr.write("{0}: {1}\n".format(error_type, e.message))
             sys.exit(1)
         
         if verbose: print(output)
@@ -68,7 +69,8 @@ def single_convert_pdf(input, output, source, destination, verbose):
         with open(output, "wb") as f:
             f.write(img2pdf.convert([input]))
     except Exception as e:
-        print(e)
+        error_type = type(e).__name__
+        sys.stderr.write("{0}: {1}\n".format(error_type, e.message))
         sys.exit(1)
 
     if verbose: print(output)
@@ -80,7 +82,8 @@ def alphachannel_erase(filename):
             img2 = cv2.imread(filename,cv2.IMREAD_COLOR)
             cv2.imwrite(filename, img2)
     except Exception as e:
-        print(e)
+        error_type = type(e).__name__
+        sys.stderr.write("{0}: {1}\n".format(error_type, e.message))
         sys.exit(1)
 
 def makedir(path):
@@ -128,7 +131,8 @@ def main():
                     alphachannel_erase(input)
                     single_convert_pdf(input, output, source, destination, verbose)
             except Exception as e:
-                print(e)
+                error_type = type(e).__name__
+                sys.stderr.write("{0}: {1}\n".format(error_type, e.message))
                 sys.exit(1)
 
         else:
@@ -149,7 +153,8 @@ def main():
                         alphachannel_erase(file)
                     convert_pdf(dname, output, source, destination, split, verbose)
             except Exception as e:
-                print(e)
+                error_type = type(e).__name__
+                sys.stderr.write("{0}: {1}\n".format(error_type, e.message))
                 sys.exit(1)
 
     else:
